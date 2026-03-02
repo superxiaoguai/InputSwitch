@@ -1,6 +1,6 @@
 # InputSwitch
 
-一个面向 Windows 转 Mac 用户的菜单栏工具。
+一个mac上的输入法切换工具：像windows一样切换输入法
 
 核心行为：
 
