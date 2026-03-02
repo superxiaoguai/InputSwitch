@@ -90,13 +90,3 @@ xcodebuild \
   CODE_SIGNING_ALLOWED=NO \
   build
 ```
-
-## 说明
-
-当前仓库主要面向本地开发和官网分发准备。
-
-如果需要正式对外分发，建议后续补齐：
-
-- Developer ID 签名
-- Apple notarization
-- 正式安装包
