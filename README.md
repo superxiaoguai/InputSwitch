@@ -1,98 +1,111 @@
 # InputSwitch
 
-一个mac上的输入法切换工具：像windows一样切换输入法
+一个 mac 上的输入法切换工具：像 Windows 一样用 `Shift` 切换中英文输入法。
 
-核心行为：
+## 使用前请先确认
 
-- 单独按一次 `Shift` 切换中英文输入法
-- `Caps Lock` 继续保留为 macOS 原生大小写
-- `Shift + 字母`、`Shift + 1` 这类组合输入不会误触发切换
+1. 支持系统：`macOS 15` 及以上
+2. 支持芯片：`Intel / Apple Silicon`
+3. 首次使用需要开启“输入监控”权限
+4. 由于当前应用未使用 Apple 开发者签名，首次打开时系统可能会提示无法验证开发者，这是正常现象
 
-## 适用场景
+## 安装步骤
 
-适合这类用户：
+### 第 1 步：把应用拖到 Applications
 
-- 长期使用 Windows，已经习惯 `Shift` 切换中英文
-- 同时使用 Windows 和 macOS，希望两边输入习惯一致
+1. 解压你收到的安装包
+2. 将 `InputSwitch.app` 拖到 `/Applications` 文件夹
 
-## 系统要求
+建议不要直接放在下载目录运行，否则后续权限和开机启动可能不稳定。
 
-- macOS 15.0 或更高
-- 需要开启“输入监控”权限
+### 第 2 步：第一次打开应用
 
-## 安装
+第一次打开时，如果系统提示无法打开或无法验证开发者，请按下面方式操作。
 
-1. 下载 `InputSwitch.app` 或发布包。
-2. 将 `InputSwitch.app` 拖到 `/Applications`。
-3. 启动应用后，点击菜单栏图标。
-4. 按提示打开：
-   - 系统设置 > 隐私与安全性 > 输入监控
-5. 勾选 `InputSwitch`。
-6. 完全退出应用，再重新打开。
+方法 A：选择“仍要打开”
 
-## 首次使用
+1. 双击打开 `InputSwitch.app`
+2. 如果系统弹出安全提示，先关闭提示窗口
+3. 打开：`系统设置 > 隐私与安全性`
+4. 滚动到页面下方，找到刚刚被拦截的 `InputSwitch`
+5. 点击：`仍要打开`
+6. 如果系统再次弹窗确认，继续点击：`仍要打开`
 
-首次使用前，请先在：
+方法 B：右键打开
 
-- 系统设置 > 键盘 > 输入法
+1. 在 `/Applications` 中找到 `InputSwitch.app`
+2. 右键点击应用，选择“打开”
+3. 系统弹窗后，点击“打开”
 
-里关闭 macOS 自带的 `Caps Lock` 切换输入法选项。
+应用打开后，不会弹出一个大窗口。你会在屏幕右上角的菜单栏里看到一个键盘图标，点开它就是 `InputSwitch` 的操作界面。
 
-然后完成两项录入：
+### 第 3 步：开启输入监控权限
 
-1. 切到英文输入法，点击“把当前输入法记为英文”
-2. 切到中文输入法，点击“把当前输入法记为中文”
+1. 打开 `InputSwitch`
+2. 按界面提示打开输入监控设置，或者手动进入：
+   `系统设置 > 隐私与安全性 > 输入监控`
+3. 找到 `InputSwitch`
+4. 打开它右侧的开关
+5. 完全退出应用，再重新打开
 
-完成后即可单独按 `Shift` 在这两个输入法之间切换。
+如果列表里暂时没有 `InputSwitch`，请确认应用已经放在 `/Applications`，然后重新打开应用一次。
 
-## 使用说明
+### 第 4 步：关闭系统自带的 Caps Lock 切换输入法
 
-- 只有“单独按下并释放 `Shift`”才会切换输入法
-- `Shift + 字母`
-- `Shift + 数字`
-- `Shift + 鼠标点击`
-- `Shift + 滚轮`
+1. 打开：`系统设置 > 键盘`
+2. 进入：`文本输入 > 编辑`
+3. 关闭：`使用 Caps Lock 键切换输入法`
 
-这些场景都不会触发误切换。
+这样 `Caps Lock` 会继续只负责大小写，不会和本工具冲突。
 
-## 开机自启
+### 第 5 步：录入英文和中文输入法
 
-应用内提供“开机自动启动”开关。
+1. 先切到你常用的英文输入法
+2. 打开 `InputSwitch`，点击“把当前输入法记为英文”
+3. 再切到你常用的中文输入法
+4. 点击“把当前输入法记为中文”
 
-如果状态显示异常，请确认：
+完成后，就可以直接单独按一下 `Shift` 在中英文之间切换。
 
-- 应用已经放在 `/Applications`
-- 系统允许它作为登录项运行
+## 正常使用说明
+
+1. 单独按一次 `Shift`：切换中英文输入法
+2. `Shift + 字母`：不会误触发
+3. `Shift + 数字`：不会误触发
+4. `Shift + 鼠标点击`：不会误触发
+
+## 常见问题
+
+### 1. 为什么双击后打不开？
+
+这是因为当前应用没有使用 Apple 开发者签名，macOS 会先拦截第一次打开。请到 `系统设置 > 隐私与安全性` 里点击“仍要打开”。
+
+### 2. 为什么打开了应用，但按 Shift 没反应？
+
+通常是下面两个原因：
+
+- 没有开启“输入监控”权限
+- 还没有录入英文输入法和中文输入法
+
+### 3. 为什么已经开了权限，还是没反应？
+
+请按这个顺序重新操作一次：
+
+1. 确认 `InputSwitch.app` 已放到 `/Applications`
+2. 在“输入监控”里关闭后重新打开 `InputSwitch` 的权限
+3. 完全退出 `InputSwitch`
+4. 重新打开应用
+
+### 4. Intel Mac 能用吗？
+
+可以，支持 `Intel` 和 `Apple Silicon`。
+
+### 5. 支持哪些系统版本？
+
+当前支持：`macOS 15` 及以上。
 
 ## 赞助支持
 
 如果这个工具对你有帮助，欢迎扫码赞助支持。
 
-![支付宝赞助码](assets/alipay-donate.jpg)
-
-## 本地开发
-
-工程使用 Xcode 构建。
-
-本地调试：
-
-```bash
-xcodebuild \
-  -project InputSwitch.xcodeproj \
-  -scheme InputSwitch \
-  -configuration Debug \
-  CODE_SIGNING_ALLOWED=NO \
-  build
-```
-
-构建 Release：
-
-```bash
-xcodebuild \
-  -project InputSwitch.xcodeproj \
-  -scheme InputSwitch \
-  -configuration Release \
-  -destination 'generic/platform=macOS' \
-  CODE_SIGNING_ALLOWED=NO \
-  build
-```
+<img src="assets/alipay-donate.jpg" alt="支付宝赞助码" width="220" />
