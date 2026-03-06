@@ -80,6 +80,10 @@ final class AppModel: ObservableObject {
         openSystemSettingsPane("x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent")
     }
 
+    func openKeyboardSettings() {
+        openSystemSettingsPane("x-apple.systempreferences:com.apple.Keyboard-Settings.extension")
+    }
+
     func setLaunchAtLoginEnabled(_ enabled: Bool) {
         do {
             if enabled {
