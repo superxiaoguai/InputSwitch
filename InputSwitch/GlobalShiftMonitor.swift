@@ -20,13 +20,10 @@ final class GlobalShiftMonitor {
 
     private struct ShiftCandidate {
         let keyCode: UInt16
-        let startedAt: TimeInterval
         var cancelled = false
     }
 
     private static let shiftKeyCodes: Set<UInt16> = [56, 60]
-    private static let maxStandalonePressDuration: TimeInterval = 0.30
-
     private let onShiftOnly: () -> Void
     private var candidate: ShiftCandidate?
     private var eventTap: CFMachPort?
@@ -141,7 +138,7 @@ final class GlobalShiftMonitor {
             }
 
             if candidate == nil {
-                candidate = ShiftCandidate(keyCode: keyCode, startedAt: ProcessInfo.processInfo.systemUptime)
+                candidate = ShiftCandidate(keyCode: keyCode)
             } else if candidate?.keyCode != keyCode {
                 candidate?.cancelled = true
             }
@@ -155,10 +152,6 @@ final class GlobalShiftMonitor {
         self.candidate = nil
 
         if candidate.cancelled {
-            return
-        }
-
-        if ProcessInfo.processInfo.systemUptime - candidate.startedAt > Self.maxStandalonePressDuration {
             return
         }
 
