@@ -1,111 +1,118 @@
-# InputSwitch
+# ShiftSwitch for Mac
 
-一个 mac 上的输入法切换工具：像 Windows 一样用 `Shift` 切换中英文输入法。
+ShiftSwitch is a macOS menu bar utility that lets you switch between any two saved input sources with a single tap of `Shift`, similar to the Windows typing workflow many multilingual users are already used to.
 
-## 使用前请先确认
+## Requirements
 
-1. 支持系统：`macOS 15` 及以上
-2. 支持芯片：`Intel / Apple Silicon`
-3. 首次使用需要开启“输入监控”权限
-4. 由于当前应用未使用 Apple 开发者签名，首次打开时系统可能会提示无法验证开发者，这是正常现象
+1. macOS `14` or later
+2. `Intel` or `Apple Silicon`
+3. `Input Monitoring` permission must be granted on first use
+4. If you are using an unsigned build, macOS may ask you to approve the app manually the first time you open it
 
-## 安装步骤
+## What It Does
 
-### 第 1 步：把应用拖到 Applications
+- Tap `Shift` by itself to switch between two saved input sources
+- `Shift + letter` does not trigger a switch
+- `Shift + number` does not trigger a switch
+- `Shift + mouse click` does not trigger a switch
+- `Caps Lock` keeps its normal capitalization behavior when the macOS language-switch shortcut is disabled
 
-1. 解压你收到的安装包
-2. 将 `InputSwitch.app` 拖到 `/Applications` 文件夹
+## Installation
 
-建议不要直接放在下载目录运行，否则后续权限和开机启动可能不稳定。
+### 1. Move the app to Applications
 
-### 第 2 步：第一次打开应用
+1. Unzip the app bundle you downloaded
+2. Drag `ShiftSwitch.app` into `/Applications`
 
-第一次打开时，如果系统提示无法打开或无法验证开发者，请按下面方式操作。
+Running the app from Downloads can cause permission and launch-at-login issues.
 
-方法 A：选择“仍要打开”
+### 2. Open the app for the first time
 
-1. 双击打开 `InputSwitch.app`
-2. 如果系统弹出安全提示，先关闭提示窗口
-3. 打开：`系统设置 > 隐私与安全性`
-4. 滚动到页面下方，找到刚刚被拦截的 `InputSwitch`
-5. 点击：`仍要打开`
-6. 如果系统再次弹窗确认，继续点击：`仍要打开`
+If macOS blocks the app on first launch, use one of these methods.
 
-方法 B：右键打开
+Method A: approve it in Privacy & Security
 
-1. 在 `/Applications` 中找到 `InputSwitch.app`
-2. 右键点击应用，选择“打开”
-3. 系统弹窗后，点击“打开”
+1. Double-click `ShiftSwitch.app`
+2. If macOS shows a warning, close the dialog
+3. Open `System Settings > Privacy & Security`
+4. Scroll down until you find the blocked `ShiftSwitch` entry
+5. Click `Open Anyway`
+6. Confirm the next dialog if macOS asks again
 
-应用打开后，不会弹出一个大窗口。你会在屏幕右上角的菜单栏里看到一个键盘图标，点开它就是 `InputSwitch` 的操作界面。
+Method B: open it from the context menu
 
-### 第 3 步：开启输入监控权限
+1. Find `ShiftSwitch.app` in `/Applications`
+2. Right-click the app and choose `Open`
+3. Confirm the dialog
 
-1. 打开 `InputSwitch`
-2. 按界面提示打开输入监控设置，或者手动进入：
-   `系统设置 > 隐私与安全性 > 输入监控`
-3. 找到 `InputSwitch`
-4. 打开它右侧的开关
-5. 完全退出应用，再重新打开
+ShiftSwitch runs as a menu bar app. After launch, click the keyboard icon in the top-right menu bar to open its controls.
 
-如果列表里暂时没有 `InputSwitch`，请确认应用已经放在 `/Applications`，然后重新打开应用一次。
+### 3. Grant Input Monitoring
 
-### 第 4 步：关闭系统自带的 Caps Lock 切换输入法
+1. Open `ShiftSwitch`
+2. Follow the in-app button, or open:
+   `System Settings > Privacy & Security > Input Monitoring`
+3. Enable `ShiftSwitch`
+4. Quit the app completely
+5. Open it again
 
-1. 打开：`系统设置 > 键盘`
-2. 进入：`文本输入 > 编辑`
-3. 关闭：`使用 Caps Lock 键切换输入法`
+If `ShiftSwitch` does not appear in the list yet, confirm that the app is already in `/Applications`, then launch it once more.
 
-这样 `Caps Lock` 会继续只负责大小写，不会和本工具冲突。
+### 4. Turn off the built-in Caps Lock language switcher
 
-### 第 5 步：录入英文和中文输入法
+1. Open `System Settings > Keyboard`
+2. Go to `Text Input > Edit`
+3. Disable the option that uses `Caps Lock` to switch languages or input sources
 
-1. 先切到你常用的英文输入法
-2. 打开 `InputSwitch`，点击“把当前输入法记为英文”
-3. 再切到你常用的中文输入法
-4. 点击“把当前输入法记为中文”
+This prevents macOS from conflicting with ShiftSwitch.
 
-完成后，就可以直接单独按一下 `Shift` 在中英文之间切换。
+### 5. Save your two input sources
 
-## 正常使用说明
+1. Switch to the first input source you want to use
+2. In `ShiftSwitch`, click `Save Current as Primary`
+3. Switch to the second input source you want to use
+4. Click `Save Current as Secondary`
 
-1. 单独按一次 `Shift`：切换中英文输入法
-2. `Shift + 字母`：不会误触发
-3. `Shift + 数字`：不会误触发
-4. `Shift + 鼠标点击`：不会误触发
+After that, a single tap of `Shift` will switch between those two saved input sources.
 
-## 常见问题
+## Typical Use Cases
 
-### 1. 为什么双击后打不开？
+- English and Japanese
+- English and Korean
+- English and Pinyin
+- English and a custom keyboard layout
+- Any other pair of selectable macOS input sources
 
-这是因为当前应用没有使用 Apple 开发者签名，macOS 会先拦截第一次打开。请到 `系统设置 > 隐私与安全性` 里点击“仍要打开”。
+## Privacy
 
-### 2. 为什么打开了应用，但按 Shift 没反应？
+ShiftSwitch works locally on your Mac. It uses Input Monitoring permission only to detect a standalone `Shift` key tap and trigger an input-source switch. It is not designed to upload your keystrokes or typing content.
 
-通常是下面两个原因：
+## Troubleshooting
 
-- 没有开启“输入监控”权限
-- 还没有录入英文输入法和中文输入法
+### Why won't the app open?
 
-### 3. 为什么已经开了权限，还是没反应？
+If you are using an unsigned build, macOS may block it the first time. Open `System Settings > Privacy & Security` and choose `Open Anyway`, or right-click the app and open it from the context menu.
 
-请按这个顺序重新操作一次：
+### Why does tapping Shift do nothing?
 
-1. 确认 `InputSwitch.app` 已放到 `/Applications`
-2. 在“输入监控”里关闭后重新打开 `InputSwitch` 的权限
-3. 完全退出 `InputSwitch`
-4. 重新打开应用
+The most common causes are:
 
-### 4. Intel Mac 能用吗？
+- `Input Monitoring` permission has not been granted
+- You have not saved both a `Primary` and `Secondary` input source yet
 
-可以，支持 `Intel` 和 `Apple Silicon`。
+### I already granted permission, but it still does not work
 
-### 5. 支持哪些系统版本？
+Try this order:
 
-当前支持：`macOS 15` 及以上。
+1. Confirm `ShiftSwitch.app` is in `/Applications`
+2. Turn `ShiftSwitch` off and on again in `Input Monitoring`
+3. Quit `ShiftSwitch`
+4. Reopen `ShiftSwitch`
 
-## 赞助支持
+### Does it work on Intel Macs?
 
-如果这个工具对你有帮助，欢迎扫码赞助支持。
+Yes. It supports both `Intel` and `Apple Silicon`.
 
-<img src="assets/alipay-donate.jpg" alt="支付宝赞助码" width="220" />
+### Which macOS versions are supported?
+
+Current minimum version: `macOS 14`.

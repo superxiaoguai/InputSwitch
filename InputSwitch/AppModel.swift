@@ -15,12 +15,12 @@ final class AppModel: ObservableObject {
 
     @Published private(set) var inputMonitoringGranted = false
     @Published private(set) var currentSource: InputSourceInfo?
-    @Published private(set) var englishSource: InputSourceInfo?
-    @Published private(set) var chineseSource: InputSourceInfo?
+    @Published private(set) var primarySource: InputSourceInfo?
+    @Published private(set) var secondarySource: InputSourceInfo?
     @Published private(set) var launchAtLoginEnabled = false
-    @Published private(set) var launchAtLoginStatusText = "未检查"
+    @Published private(set) var launchAtLoginStatusText = "Not checked"
     @Published private(set) var onboardingCompleted = false
-    @Published private(set) var statusMessage = "请先把当前英文输入法和中文输入法各记录一次。"
+    @Published private(set) var statusMessage = "Save your current input source once as Primary and once as Secondary."
 
     private let inputSourceController = InputSourceController()
     private lazy var shiftMonitor = GlobalShiftMonitor { [weak self] in
@@ -39,37 +39,37 @@ final class AppModel: ObservableObject {
     func refreshAll() {
         inputMonitoringGranted = CGPreflightListenEventAccess()
         currentSource = inputSourceController.currentSource()
-        englishSource = inputSourceController.storedEnglishSource()
-        chineseSource = inputSourceController.storedChineseSource()
+        primarySource = inputSourceController.storedPrimarySource()
+        secondarySource = inputSourceController.storedSecondarySource()
         refreshOnboardingState()
     }
 
-    func rememberCurrentAsEnglish() {
-        guard let source = inputSourceController.rememberCurrentAsEnglish() else {
-            statusMessage = "没有读取到当前输入法。"
+    func rememberCurrentAsPrimary() {
+        guard let source = inputSourceController.rememberCurrentAsPrimary() else {
+            statusMessage = "Unable to read the current input source."
             return
         }
 
-        englishSource = source
+        primarySource = source
         currentSource = source
-        statusMessage = "已将“\(source.displayName)”记为英文输入法。"
+        statusMessage = "Saved “\(source.displayName)” as the Primary input source."
         refreshOnboardingState()
     }
 
-    func rememberCurrentAsChinese() {
-        guard let source = inputSourceController.rememberCurrentAsChinese() else {
-            statusMessage = "没有读取到当前输入法。"
+    func rememberCurrentAsSecondary() {
+        guard let source = inputSourceController.rememberCurrentAsSecondary() else {
+            statusMessage = "Unable to read the current input source."
             return
         }
 
-        chineseSource = source
+        secondarySource = source
         currentSource = source
-        statusMessage = "已将“\(source.displayName)”记为中文输入法。"
+        statusMessage = "Saved “\(source.displayName)” as the Secondary input source."
         refreshOnboardingState()
     }
 
     func toggleInputSourceFromButton() {
-        toggleInputSource(source: "按钮测试")
+        toggleInputSource(source: "Manual test")
     }
 
     func requestInputMonitoringPermission() {
@@ -93,7 +93,7 @@ final class AppModel: ObservableObject {
             }
 
             refreshLaunchAtLoginState()
-            statusMessage = enabled ? "已请求开机自动启动。" : "已关闭开机自动启动。"
+            statusMessage = enabled ? "Launch at login has been requested." : "Launch at login has been turned off."
         } catch {
             refreshLaunchAtLoginState()
             statusMessage = launchAtLoginFailureMessage(for: error)
@@ -118,20 +118,20 @@ final class AppModel: ObservableObject {
     }
 
     private func toggleInputSource(source: String) {
-        guard englishSource != nil, chineseSource != nil else {
+        guard primarySource != nil, secondarySource != nil else {
             refreshAll()
-            statusMessage = "未完成配置：请先分别记录英文输入法和中文输入法。"
+            statusMessage = "Setup is incomplete. Save one Primary input source and one Secondary input source first."
             return
         }
 
-        if let switchedTo = inputSourceController.toggleBetweenStoredSources() {
+        if let switchedTo = inputSourceController.toggleBetweenSavedSources() {
             currentSource = switchedTo
-            englishSource = inputSourceController.storedEnglishSource()
-            chineseSource = inputSourceController.storedChineseSource()
-            statusMessage = "\(source) 已切换到“\(switchedTo.displayName)”。"
+            primarySource = inputSourceController.storedPrimarySource()
+            secondarySource = inputSourceController.storedSecondarySource()
+            statusMessage = "\(source) switched to “\(switchedTo.displayName)”."
         } else {
             refreshAll()
-            statusMessage = "\(source) 切换失败。请检查输入监控权限，以及已保存的输入法是否仍然存在。"
+            statusMessage = "\(source) could not switch input sources. Check Input Monitoring permission and confirm both saved sources still exist."
         }
     }
 
@@ -139,13 +139,13 @@ final class AppModel: ObservableObject {
         if isEnabled {
             switch shiftMonitor.start() {
             case .started:
-                if statusMessage.contains("全局监听") || statusMessage.contains("输入监控") {
-                    statusMessage = "Shift 单键切换已启用。"
+                if statusMessage.contains("global listener") || statusMessage.contains("Input Monitoring") {
+                    statusMessage = "Single-tap Shift switching is enabled."
                 }
             case .missingInputMonitoringPermission:
-                statusMessage = "全局监听未启动：缺少输入监控权限。请重新授予后再试。"
+                statusMessage = "The global listener did not start because Input Monitoring permission is missing."
             case .failedToCreateTap:
-                statusMessage = "全局监听未启动：事件 tap 创建失败。请删除旧的输入监控授权后重新添加，并完全重启应用。"
+                statusMessage = "The global listener could not start because the event tap failed to initialize. Remove the old Input Monitoring permission, add it again, and relaunch the app."
             }
         } else {
             shiftMonitor.stop()
@@ -158,24 +158,24 @@ final class AppModel: ObservableObject {
         switch status {
         case .enabled:
             launchAtLoginEnabled = true
-            launchAtLoginStatusText = "已启用"
+            launchAtLoginStatusText = "Enabled"
         case .requiresApproval:
             launchAtLoginEnabled = false
-            launchAtLoginStatusText = "需要在系统设置里批准"
+            launchAtLoginStatusText = "Needs approval in System Settings"
         case .notRegistered:
             launchAtLoginEnabled = false
-            launchAtLoginStatusText = "未启用"
+            launchAtLoginStatusText = "Disabled"
         case .notFound:
             launchAtLoginEnabled = false
-            launchAtLoginStatusText = "当前 App 不符合登录项要求"
+            launchAtLoginStatusText = "This app is not eligible as a login item"
         @unknown default:
             launchAtLoginEnabled = false
-            launchAtLoginStatusText = "未知状态"
+            launchAtLoginStatusText = "Unknown"
         }
     }
 
     private func refreshOnboardingState() {
-        let completedBySetup = inputMonitoringGranted && englishSource != nil && chineseSource != nil
+        let completedBySetup = inputMonitoringGranted && primarySource != nil && secondarySource != nil
         let dismissed = UserDefaults.standard.bool(forKey: Self.onboardingCompletedKey)
 
         onboardingCompleted = completedBySetup || dismissed
@@ -189,11 +189,19 @@ final class AppModel: ObservableObject {
     private func launchAtLoginFailureMessage(for error: Error) -> String {
         let nsError = error as NSError
 
-        if nsError.domain == SMAppServiceErrorDomain {
-            return "设置开机自启失败：\(nsError.localizedDescription)"
+        if isSMAppServiceError(nsError) {
+            return "Launch at login failed: \(nsError.localizedDescription)"
         }
 
-        return "设置开机自启失败。请确认应用已安装到 /Applications，并且系统允许它作为登录项启动。"
+        return "Launch at login failed. Make sure the app is installed in /Applications and allowed to run as a login item."
+    }
+
+    private func isSMAppServiceError(_ error: NSError) -> Bool {
+        if #available(macOS 15.0, *) {
+            return error.domain == SMAppServiceErrorDomain
+        }
+
+        return error.domain == "SMAppServiceErrorDomain"
     }
 
     private func openSystemSettingsPane(_ urlString: String) {

@@ -10,20 +10,18 @@ struct InputSourceInfo: Equatable {
         localizedName.isEmpty ? id : localizedName
     }
 
-    var primaryLanguageDescription: String {
-        languages.first ?? "未知语言"
-    }
-
-    var looksEnglish: Bool {
-        languages.contains { $0.hasPrefix("en") }
+    var languageDescription: String {
+        languages.first ?? "Unknown"
     }
 }
 
 @MainActor
 final class InputSourceController {
     private enum Keys {
-        static let englishSourceID = "inputSource.english"
-        static let chineseSourceID = "inputSource.chinese"
+        static let primarySourceID = "inputSource.primary"
+        static let secondarySourceID = "inputSource.secondary"
+        static let legacyEnglishSourceID = "inputSource.english"
+        static let legacyChineseSourceID = "inputSource.chinese"
     }
 
     private let defaults = UserDefaults.standard
@@ -36,63 +34,69 @@ final class InputSourceController {
         return info(for: source)
     }
 
-    func storedEnglishSource() -> InputSourceInfo? {
-        guard let id = defaults.string(forKey: Keys.englishSourceID) else {
+    func storedPrimarySource() -> InputSourceInfo? {
+        guard let id = storedSourceID(forKey: Keys.primarySourceID, legacyKey: Keys.legacyEnglishSourceID) else {
             return nil
         }
 
         return source(withID: id)
     }
 
-    func storedChineseSource() -> InputSourceInfo? {
-        guard let id = defaults.string(forKey: Keys.chineseSourceID) else {
+    func storedSecondarySource() -> InputSourceInfo? {
+        guard let id = storedSourceID(forKey: Keys.secondarySourceID, legacyKey: Keys.legacyChineseSourceID) else {
             return nil
         }
 
         return source(withID: id)
     }
 
-    func rememberCurrentAsEnglish() -> InputSourceInfo? {
+    func rememberCurrentAsPrimary() -> InputSourceInfo? {
         guard let source = currentSource() else {
             return nil
         }
 
-        defaults.set(source.id, forKey: Keys.englishSourceID)
+        defaults.set(source.id, forKey: Keys.primarySourceID)
         return source
     }
 
-    func rememberCurrentAsChinese() -> InputSourceInfo? {
+    func rememberCurrentAsSecondary() -> InputSourceInfo? {
         guard let source = currentSource() else {
             return nil
         }
 
-        defaults.set(source.id, forKey: Keys.chineseSourceID)
+        defaults.set(source.id, forKey: Keys.secondarySourceID)
         return source
     }
 
-    func toggleBetweenStoredSources() -> InputSourceInfo? {
+    func toggleBetweenSavedSources() -> InputSourceInfo? {
         guard
-            let englishID = defaults.string(forKey: Keys.englishSourceID),
-            let chineseID = defaults.string(forKey: Keys.chineseSourceID),
+            let primaryID = storedSourceID(forKey: Keys.primarySourceID, legacyKey: Keys.legacyEnglishSourceID),
+            let secondaryID = storedSourceID(forKey: Keys.secondarySourceID, legacyKey: Keys.legacyChineseSourceID),
             let current = currentSource()
         else {
             return nil
         }
 
-        let targetID: String
-        if current.id == englishID {
-            targetID = chineseID
-        } else if current.id == chineseID {
-            targetID = englishID
-        } else {
-            targetID = current.looksEnglish ? chineseID : englishID
-        }
+        let targetID = current.id == primaryID ? secondaryID : primaryID
 
         guard selectSource(withID: targetID) else {
             return nil
         }
 
         return source(withID: targetID) ?? currentSource()
+    }
+
+    private func storedSourceID(forKey key: String, legacyKey: String) -> String? {
+        if let id = defaults.string(forKey: key) {
+            return id
+        }
+
+        guard let legacyID = defaults.string(forKey: legacyKey) else {
+            return nil
+        }
+
+        defaults.set(legacyID, forKey: key)
+        return legacyID
     }
 
     private func source(withID id: String) -> InputSourceInfo? {

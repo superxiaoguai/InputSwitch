@@ -19,7 +19,7 @@ struct InputSwitchApp: App {
     @StateObject private var model = AppModel()
 
     var body: some Scene {
-        MenuBarExtra("InputSwitch", systemImage: model.isEnabled ? "keyboard.fill" : "keyboard") {
+        MenuBarExtra("ShiftSwitch", systemImage: model.isEnabled ? "keyboard.fill" : "keyboard") {
             ContentView()
                 .environmentObject(model)
         }

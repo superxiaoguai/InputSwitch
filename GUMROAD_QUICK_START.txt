@@ -1,0 +1,29 @@
+ShiftSwitch for Mac
+
+Quick Start
+
+1. Move ShiftSwitch.app to /Applications
+2. Open ShiftSwitch
+3. If macOS blocks the app on first launch, go to:
+   System Settings > Privacy & Security
+   Then click "Open Anyway"
+4. Enable Input Monitoring for ShiftSwitch
+5. Quit and reopen the app
+6. Save one input source as Primary
+7. Save one input source as Secondary
+8. Tap Shift to switch between them
+
+Requirements
+
+- macOS 14 or later
+- Intel or Apple Silicon
+
+Privacy
+
+ShiftSwitch uses Input Monitoring only to detect a standalone Shift tap.
+It does not record what you type or upload typing content.
+
+Notes
+
+- This version is currently unsigned
+- On first launch, macOS may ask for manual approval
