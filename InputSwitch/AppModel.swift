@@ -6,6 +6,12 @@ import SwiftUI
 
 @MainActor
 final class AppModel: ObservableObject {
+    @Published var appLanguage: AppLanguage {
+        didSet {
+            UserDefaults.standard.set(appLanguage.rawValue, forKey: Self.appLanguageKey)
+        }
+    }
+
     @Published var isEnabled: Bool {
         didSet {
             UserDefaults.standard.set(isEnabled, forKey: Self.enabledKey)
@@ -18,22 +24,40 @@ final class AppModel: ObservableObject {
     @Published private(set) var primarySource: InputSourceInfo?
     @Published private(set) var secondarySource: InputSourceInfo?
     @Published private(set) var launchAtLoginEnabled = false
-    @Published private(set) var launchAtLoginStatusText = "Not checked"
+    @Published private(set) var launchAtLoginStatus: LaunchAtLoginStatus = .notChecked
     @Published private(set) var onboardingCompleted = false
-    @Published private(set) var statusMessage = "Save your current input source once as Primary and once as Secondary."
+    @Published private(set) var statusMessageState: StatusMessage = .savePrimaryAndSecondaryPrompt
 
     private let inputSourceController = InputSourceController()
     private lazy var shiftMonitor = GlobalShiftMonitor { [weak self] in
         self?.toggleInputSourceFromShift()
     }
 
+    private static let appLanguageKey = "ui.appLanguage"
     private static let enabledKey = "feature.isEnabled"
     private static let onboardingCompletedKey = "ui.onboardingCompleted"
 
     init() {
+        appLanguage = AppLanguage(storedValue: UserDefaults.standard.string(forKey: Self.appLanguageKey))
         isEnabled = UserDefaults.standard.object(forKey: Self.enabledKey) as? Bool ?? true
         refreshAll()
         configureMonitor()
+    }
+
+    var strings: AppStrings {
+        AppStrings(language: appLanguage)
+    }
+
+    var locale: Locale {
+        Locale(identifier: appLanguage.localeIdentifier)
+    }
+
+    var launchAtLoginStatusText: String {
+        strings.launchAtLoginStatus(launchAtLoginStatus)
+    }
+
+    var statusMessage: String {
+        strings.statusMessage(statusMessageState)
     }
 
     func refreshAll() {
@@ -46,30 +70,30 @@ final class AppModel: ObservableObject {
 
     func rememberCurrentAsPrimary() {
         guard let source = inputSourceController.rememberCurrentAsPrimary() else {
-            statusMessage = "Unable to read the current input source."
+            statusMessageState = .unableToReadCurrentSource
             return
         }
 
         primarySource = source
         currentSource = source
-        statusMessage = "Saved “\(source.displayName)” as the Primary input source."
+        statusMessageState = .savedPrimary(source.displayName)
         refreshOnboardingState()
     }
 
     func rememberCurrentAsSecondary() {
         guard let source = inputSourceController.rememberCurrentAsSecondary() else {
-            statusMessage = "Unable to read the current input source."
+            statusMessageState = .unableToReadCurrentSource
             return
         }
 
         secondarySource = source
         currentSource = source
-        statusMessage = "Saved “\(source.displayName)” as the Secondary input source."
+        statusMessageState = .savedSecondary(source.displayName)
         refreshOnboardingState()
     }
 
     func toggleInputSourceFromButton() {
-        toggleInputSource(source: "Manual test")
+        toggleInputSource(trigger: .manualTest)
     }
 
     func requestInputMonitoringPermission() {
@@ -93,10 +117,10 @@ final class AppModel: ObservableObject {
             }
 
             refreshLaunchAtLoginState()
-            statusMessage = enabled ? "Launch at login has been requested." : "Launch at login has been turned off."
+            statusMessageState = enabled ? .launchAtLoginRequested : .launchAtLoginTurnedOff
         } catch {
             refreshLaunchAtLoginState()
-            statusMessage = launchAtLoginFailureMessage(for: error)
+            statusMessageState = launchAtLoginFailureMessage(for: error)
         }
     }
 
@@ -114,13 +138,13 @@ final class AppModel: ObservableObject {
     }
 
     private func toggleInputSourceFromShift() {
-        toggleInputSource(source: "Shift")
+        toggleInputSource(trigger: .shift)
     }
 
-    private func toggleInputSource(source: String) {
+    private func toggleInputSource(trigger: SwitchTrigger) {
         guard primarySource != nil, secondarySource != nil else {
             refreshAll()
-            statusMessage = "Setup is incomplete. Save one Primary input source and one Secondary input source first."
+            statusMessageState = .setupIncomplete
             return
         }
 
@@ -128,10 +152,10 @@ final class AppModel: ObservableObject {
             currentSource = switchedTo
             primarySource = inputSourceController.storedPrimarySource()
             secondarySource = inputSourceController.storedSecondarySource()
-            statusMessage = "\(source) switched to “\(switchedTo.displayName)”."
+            statusMessageState = .switched(trigger, switchedTo.displayName)
         } else {
             refreshAll()
-            statusMessage = "\(source) could not switch input sources. Check Input Monitoring permission and confirm both saved sources still exist."
+            statusMessageState = .switchFailed(trigger)
         }
     }
 
@@ -139,13 +163,16 @@ final class AppModel: ObservableObject {
         if isEnabled {
             switch shiftMonitor.start() {
             case .started:
-                if statusMessage.contains("global listener") || statusMessage.contains("Input Monitoring") {
-                    statusMessage = "Single-tap Shift switching is enabled."
+                switch statusMessageState {
+                case .missingInputMonitoringPermission, .eventTapInitializationFailed:
+                    statusMessageState = .shiftEnabled
+                default:
+                    break
                 }
             case .missingInputMonitoringPermission:
-                statusMessage = "The global listener did not start because Input Monitoring permission is missing."
+                statusMessageState = .missingInputMonitoringPermission
             case .failedToCreateTap:
-                statusMessage = "The global listener could not start because the event tap failed to initialize. Remove the old Input Monitoring permission, add it again, and relaunch the app."
+                statusMessageState = .eventTapInitializationFailed
             }
         } else {
             shiftMonitor.stop()
@@ -158,19 +185,19 @@ final class AppModel: ObservableObject {
         switch status {
         case .enabled:
             launchAtLoginEnabled = true
-            launchAtLoginStatusText = "Enabled"
+            launchAtLoginStatus = .enabled
         case .requiresApproval:
             launchAtLoginEnabled = false
-            launchAtLoginStatusText = "Needs approval in System Settings"
+            launchAtLoginStatus = .requiresApproval
         case .notRegistered:
             launchAtLoginEnabled = false
-            launchAtLoginStatusText = "Disabled"
+            launchAtLoginStatus = .disabled
         case .notFound:
             launchAtLoginEnabled = false
-            launchAtLoginStatusText = "This app is not eligible as a login item"
+            launchAtLoginStatus = .notEligible
         @unknown default:
             launchAtLoginEnabled = false
-            launchAtLoginStatusText = "Unknown"
+            launchAtLoginStatus = .unknown
         }
     }
 
@@ -186,14 +213,14 @@ final class AppModel: ObservableObject {
         }
     }
 
-    private func launchAtLoginFailureMessage(for error: Error) -> String {
+    private func launchAtLoginFailureMessage(for error: Error) -> StatusMessage {
         let nsError = error as NSError
 
         if isSMAppServiceError(nsError) {
-            return "Launch at login failed: \(nsError.localizedDescription)"
+            return .launchAtLoginFailed(.systemDescription(nsError.localizedDescription))
         }
 
-        return "Launch at login failed. Make sure the app is installed in /Applications and allowed to run as a login item."
+        return .launchAtLoginFailed(.installHint)
     }
 
     private func isSMAppServiceError(_ error: NSError) -> Bool {

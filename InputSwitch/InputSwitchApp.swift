@@ -22,6 +22,7 @@ struct InputSwitchApp: App {
         MenuBarExtra("ShiftSwitch", systemImage: model.isEnabled ? "keyboard.fill" : "keyboard") {
             ContentView()
                 .environmentObject(model)
+                .environment(\.locale, model.locale)
         }
         .menuBarExtraStyle(.window)
     }
